@@ -52,9 +52,32 @@ services:
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
     volumes:
       - n8n_data:/home/node/.n8n
+  openWebUI:
+    image: ghcr.io/open-webui/open-webui:main
+    restart: always
+    ports:
+      - "3000:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - open-webui-local:/app/backend/data
 
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama-local:/root/.ollama
 volumes:
   traefik_data:
     external: true
   n8n_data:
     external: true
+  ollama-local:
+    external: true
+  open-webui-local:
+    external: true
+
+networks:
+  n8n-compose:
+    driver: bridge
