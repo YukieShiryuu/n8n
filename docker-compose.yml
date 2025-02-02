@@ -9,7 +9,7 @@ services:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.address=:85"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--entrypoints.websecure.address=:443"
@@ -17,7 +17,7 @@ services:
       - "--certificatesresolvers.mytlschallenge.acme.email=${SSL_EMAIL}"
       - "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
     ports:
-      - "80:80"
+      - "85:80"
       - "443:443"
     volumes:
       - traefik_data:/letsencrypt
@@ -65,9 +65,18 @@ services:
   ollama:
     image: ollama/ollama
     ports:
-      - "127.0.0.1:11434:11434"
+      - "11435:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
     volumes:
       - ollama-local:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 volumes:
   traefik_data:
     external: true
@@ -80,4 +89,4 @@ volumes:
 
 networks:
   n8n-compose:
-    driver: bridge
+    driver: host
